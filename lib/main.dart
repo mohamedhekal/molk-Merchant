@@ -32,23 +32,28 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Map<String, Map<String, String>> languages = await di.init();
 
-  await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyABYm-lbIq2slZLmiPu2P7r1v09ck3bcek",
-      authDomain: "molk-app-store.firebaseapp.com",
-      projectId: "molk-app-store",
-      storageBucket: "molk-app-store.firebasestorage.app",
-      messagingSenderId: "661243235369",
-      appId: "1:661243235369:web:204918c163dd69fed86038",
-      measurementId: "G-TNX9TW5Z15",
-    ),
-  );
+  try {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyABYm-lbIq2slZLmiPu2P7r1v09ck3bcek",
+        authDomain: "molk-app-store.firebaseapp.com",
+        projectId: "molk-app-store",
+        storageBucket: "molk-app-store.firebasestorage.app",
+        messagingSenderId: "661243235369",
+        appId: "1:661243235369:web:204918c163dd69fed86038",
+        measurementId: "G-TNX9TW5Z15",
+      ),
+    );
+  } catch (e) {
+    // Firebase might already be initialized, ignore the error
+    print('Firebase initialization: $e');
+  }
 
   NotificationBodyModel? body;
   try {
     if (GetPlatform.isMobile) {
-      final RemoteMessage? remoteMessage = await FirebaseMessaging.instance
-          .getInitialMessage();
+      final RemoteMessage? remoteMessage =
+          await FirebaseMessaging.instance.getInitialMessage();
       if (remoteMessage != null) {
         body = NotificationHelper.convertNotification(remoteMessage.data);
       }
@@ -105,29 +110,23 @@ class MyApp extends StatelessWidget {
                     child: Stack(
                       children: [
                         widget!,
-
                         GetBuilder<ProfileController>(
                           builder: (profileController) {
-                            bool canShow =
-                                profileController.profileModel != null &&
+                            bool canShow = profileController.profileModel !=
+                                    null &&
                                 profileController.profileModel!.subscription !=
                                     null &&
                                 profileController
-                                        .profileModel!
-                                        .subscription!
-                                        .isTrial ==
+                                        .profileModel!.subscription!.isTrial ==
                                     1 &&
                                 profileController
-                                        .profileModel!
-                                        .subscription!
-                                        .status ==
+                                        .profileModel!.subscription!.status ==
                                     1 &&
-                                DateConverterHelper.differenceInDaysIgnoringTime(
+                                DateConverterHelper
+                                        .differenceInDaysIgnoringTime(
                                       DateTime.parse(
-                                        profileController
-                                            .profileModel!
-                                            .subscription!
-                                            .expiryDate!,
+                                        profileController.profileModel!
+                                            .subscription!.expiryDate!,
                                       ),
                                       null,
                                     ) >
@@ -143,8 +142,7 @@ class MyApp extends StatelessWidget {
                                       ),
                                       child: TrialWidget(
                                         subscription: profileController
-                                            .profileModel!
-                                            .subscription!,
+                                            .profileModel!.subscription!,
                                       ),
                                     ),
                                   )
